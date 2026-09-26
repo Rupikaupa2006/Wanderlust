@@ -143,23 +143,26 @@ app.get(
         res.send("Successful testing");
     }
 );
+app.get("/", (req, res) => {
+    res.redirect("/listing");
+});
 
-
-// ---------------- 404 HANDLER ----------------
-
+// 404 handler
 app.use((req, res, next) => {
     next(new ExpressError("Page Not Found", 404));
 });
 
-// ---------------ERROR HANDLING MIDDLEWARE
+// Error handler
 app.use((err, req, res, next) => {
     console.log("🔥 ACTUAL ERROR:", err);
 
-    const { statusCode = 500, message = "Something went wrong" } = err;
+    const {
+        statusCode = 500,
+        message = "Something went wrong"
+    } = err;
 
     res.status(statusCode).render("error.ejs", { message });
 });
-
 // ---------------- SERVER ----------------
 
 app.listen(8080, () => {
