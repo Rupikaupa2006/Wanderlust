@@ -15,6 +15,7 @@ const ExpressError = require("./utils/ExpressError.js");
 
 const session = require("express-session");
 const { MongoStore } = require("connect-mongo");
+
 const flash = require("connect-flash");
 
 const passport = require("passport");
@@ -61,9 +62,11 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const store = MongoStore.create({
     mongoUrl: dbUrl,
+
     crypto: {
         secret: process.env.SECRET,
     },
+
     touchAfter: 24 * 3600,
 });
 
@@ -73,13 +76,18 @@ store.on("error", (err) => {
 
 const sessionOptions = {
     store,
+
     secret: process.env.SECRET,
+
     resave: false,
+
     saveUninitialized: true,
 
     cookie: {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+
         maxAge: 7 * 24 * 60 * 60 * 1000,
+
         httpOnly: true,
     },
 };
@@ -92,11 +100,13 @@ app.use(flash());
 // ---------------- PASSPORT ----------------
 
 app.use(passport.initialize());
+
 app.use(passport.session());
 
 passport.use(new LocalStrategy(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
+
 passport.deserializeUser(User.deserializeUser());
 
 
@@ -104,7 +114,9 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
+
     res.locals.error = req.flash("error");
+
     res.locals.currUser = req.user;
 
     next();
@@ -134,14 +146,18 @@ app.use("/listing", listings);
 
 app.use("/listing/:id/reviews", reviews);
 
-app.use("/", userRouter);
-
 
 // ---------------- HOME PAGE ----------------
+// IMPORTANT: This MUST come BEFORE app.use("/", userRouter)
 
 app.get("/", (req, res) => {
     res.redirect("/listing");
 });
+
+
+// ---------------- USER ROUTES ----------------
+
+app.use("/", userRouter);
 
 
 // ---------------- TEST LISTING ROUTE ----------------
